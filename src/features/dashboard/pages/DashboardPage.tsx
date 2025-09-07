@@ -1,20 +1,16 @@
 import { useAuth } from "~/hooks/use-auth";
 import ProtectedRoute from "~/components/layouts/ProtectedRoute";
+import { PageContainer } from "~/components/layouts/PageContainer";
 
 const Dashboard = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
 
   return (
     <ProtectedRoute>
-      <div className="p-8 flex justify-between items-center">
-        <div>
-          <div>Welcome to dashboard</div>
-          <h1>{currentUser?.user_metadata.full_name}</h1>
-        </div>
-        <div>
-          <button onClick={logout}>Logout</button>
-        </div>
-      </div>
+      <PageContainer>
+        <div>Welcome to dashboard</div>
+        <h1>{currentUser?.user_metadata.full_name}</h1>
+      </PageContainer>
     </ProtectedRoute>
   );
 };
