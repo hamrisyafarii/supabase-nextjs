@@ -10,6 +10,8 @@ const Dashboard = () => {
       <PageContainer>
         <div>Welcome to dashboard</div>
         <h1>{currentUser?.user_metadata.full_name}</h1>
+
+        {currentUser?.email && <h1>{currentUser.email}</h1>}
       </PageContainer>
     </ProtectedRoute>
   );

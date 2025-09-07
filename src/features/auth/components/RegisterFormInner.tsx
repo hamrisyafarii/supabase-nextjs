@@ -1,40 +1,52 @@
-import React, { ChangeEvent } from "react";
+import React from "react";
+import { useFormContext } from "react-hook-form";
+import { AuthDataSchema } from "../forms/auth.schema";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
 
 type registerFormInnerProps = {
   onHandleRegister: (e: React.FormEvent) => void;
-  onChangeRegister: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  formData: {
-    email: string;
-    password: string;
-  };
   isLoading: boolean;
 };
 
 const RegisterFormInner = (props: registerFormInnerProps) => {
+  const form = useFormContext<AuthDataSchema>();
+
+  const { control } = form;
   return (
     <form className="space-y-2" onSubmit={props.onHandleRegister}>
-      <div>
-        <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          value={props.formData.email}
-          onChange={props.onChangeRegister}
-          className="border px-2 w-full rounded-md py-1"
-          required
-        />
-      </div>
-      <div>
-        <label>Password</label>
-        <input
-          type="password"
-          name="password"
-          value={props.formData.password}
-          onChange={props.onChangeRegister}
-          className="border px-2 w-full rounded-md py-1"
-          required
-        />
-      </div>
+      <FormField
+        control={control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>E-mail</FormLabel>
+            <FormControl>
+              <Input placeholder="Email" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="password"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Password</FormLabel>
+            <FormControl>
+              <Input type="password" placeholder="*****" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <div className="text-end text-xs text-gray-500 underline hover:underline-offset-2 cursor-pointer">
         Forgot password?

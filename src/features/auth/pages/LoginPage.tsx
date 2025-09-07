@@ -1,10 +1,14 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "~/hooks/use-auth";
 import LoginFormInner from "~/features/auth/components/LoginFormInner";
+import { useForm } from "react-hook-form";
+import { authDataSchema, AuthDataSchema } from "../forms/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "~/components/ui/form";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
@@ -15,11 +19,12 @@ const geistMono = Geist_Mono({
 export default function Home() {
   const router = useRouter();
   const { login, loginWithGoogle, currentUser, isLoading, error } = useAuth();
-  const initialStateUser = {
-    email: "",
-    password: "",
-  };
-  const [formData, setFromData] = useState(initialStateUser);
+
+  const form = useForm<AuthDataSchema>({
+    resolver: zodResolver(authDataSchema),
+  });
+
+  const { handleSubmit } = form;
 
   useEffect(() => {
     if (!isLoading && currentUser) {
@@ -27,15 +32,9 @@ export default function Home() {
     }
   }, [currentUser, isLoading, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFromData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await login(formData);
-  };
+  const handleLogin = handleSubmit(async (data: AuthDataSchema) => {
+    await login(data);
+  });
 
   return (
     <div
@@ -50,12 +49,9 @@ export default function Home() {
           </div>
         )}
 
-        <LoginFormInner
-          onSubmitLogin={handleLogin}
-          onChangeLogin={handleChange}
-          formData={formData}
-          isLoading={isLoading}
-        />
+        <Form {...form}>
+          <LoginFormInner onSubmitLogin={handleLogin} isLoading={isLoading} />
+        </Form>
 
         <button
           onClick={loginWithGoogle}

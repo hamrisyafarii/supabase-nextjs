@@ -1,10 +1,14 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "~/hooks/use-auth";
 import RegisterFormInner from "~/features/auth/components/RegisterFormInner";
+import { useForm } from "react-hook-form";
+import { authDataSchema, AuthDataSchema } from "../forms/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "~/components/ui/form";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
@@ -16,11 +20,12 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register, loginWithGoogle, currentUser, isLoading, error } =
     useAuth();
-  const initialStatuRegisterUser = {
-    email: "",
-    password: "",
-  };
-  const [formData, setFormData] = useState(initialStatuRegisterUser);
+
+  const form = useForm<AuthDataSchema>({
+    resolver: zodResolver(authDataSchema),
+  });
+
+  const { handleSubmit } = form;
 
   useEffect(() => {
     if (!isLoading && currentUser) {
@@ -28,15 +33,9 @@ export default function RegisterPage() {
     }
   }, [currentUser, isLoading, router]);
 
-  const handleChangeRegister = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await register(formData);
-  };
+  const handleRegister = handleSubmit(async (data: AuthDataSchema) => {
+    await register(data);
+  });
 
   return (
     <div
@@ -52,12 +51,12 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <RegisterFormInner
-          formData={formData}
-          isLoading={isLoading}
-          onChangeRegister={handleChangeRegister}
-          onHandleRegister={handleRegister}
-        />
+        <Form {...form}>
+          <RegisterFormInner
+            isLoading={isLoading}
+            onHandleRegister={handleRegister}
+          />
+        </Form>
 
         <button
           onClick={loginWithGoogle}
